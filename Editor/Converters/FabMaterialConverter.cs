@@ -32,7 +32,8 @@ public static class FabMaterialConverter
 		public string Metalness { get; set; }
 		public string AmbientOcclusion { get; set; }
 		public string Displacement { get; set; }
-		public string Opacity { get; set; }
+		public string Translucency { get; set; }  // RGB translucency map (preferred for foliage)
+		public string Opacity { get; set; }       // Grayscale opacity/alpha map (fallback)
 		public string Emissive { get; set; }
 	}
 
@@ -140,8 +141,10 @@ public static class FabMaterialConverter
 				textures.AmbientOcclusion = path;
 			else if ( fileName.EndsWith( "_height" ) || fileName.EndsWith( "_displacement" ) )
 				textures.Displacement = path;
-			else if ( fileName.EndsWith( "_trans" ) || fileName.EndsWith( "_opacity" ) || fileName.EndsWith( "_alpha" ) )
-				textures.Opacity = path;
+			else if ( fileName.EndsWith( "_translucency" ) )
+				textures.Translucency = path;  // RGB translucency (preferred)
+			else if ( fileName.EndsWith( "_opacity" ) || fileName.EndsWith( "_alpha" ) || fileName.EndsWith( "_trans" ) )
+				textures.Opacity = path;  // Grayscale opacity (fallback)
 			else if ( fileName.EndsWith( "_selfillum" ) || fileName.EndsWith( "_emissive" ) )
 				textures.Emissive = path;
 		}
@@ -247,11 +250,23 @@ public static class FabMaterialConverter
 			sb.AppendLine();
 		}
 
-		// Translucency/Opacity (requires feature flag)
-		if ( !string.IsNullOrEmpty( textures.Opacity ) )
+		// Translucency (RGB map - preferred for foliage, glass-like transparency)
+		if ( !string.IsNullOrEmpty( textures.Translucency ) )
 		{
 			sb.AppendLine( "\t//---- Translucent ----" );
 			sb.AppendLine( "\tF_TRANSLUCENT 1" );
+			sb.AppendLine( "\tF_RENDER_BACKFACES 1" );
+			sb.AppendLine( $"\tTextureTranslucency \"{textures.Translucency}\"" );
+			sb.AppendLine();
+		}
+		// Alpha Test/Opacity (grayscale map - fallback for cutout materials)
+		else if ( !string.IsNullOrEmpty( textures.Opacity ) )
+		{
+			sb.AppendLine( "\t//---- Alpha Test ----" );
+			sb.AppendLine( "\tF_ALPHA_TEST 1" );
+			sb.AppendLine( "\tF_RENDER_BACKFACES 1" );
+			sb.AppendLine( "\tg_flAlphaTestReference \"0.5\"" );
+			sb.AppendLine( "\tg_flAntiAliasedEdgeStrength \"1.000\"" );
 			sb.AppendLine( $"\tTextureTranslucency \"{textures.Opacity}\"" );
 			sb.AppendLine();
 		}

@@ -181,7 +181,7 @@ public class FabAsset
 			return "roughness";
 		if ( filename.Contains( "metallic" ) || filename.Contains( "metalness" ) )
 			return "metalness";
-		if ( filename.Contains( "ao" ) || filename.Contains( "occlusion" ) || filename.Contains( "ambient" ) )
+		if ( filename.Contains( "ao" ) || filename.Contains( "ambient" ) )
 			return "ao";
 		if ( filename.Contains( "displacement" ) || filename.Contains( "height" ) )
 			return "displacement";
@@ -193,10 +193,16 @@ public class FabAsset
 			return "specular";
 		if ( filename.Contains( "bump" ) )
 			return "bump";
+		// Translucency takes priority over opacity - it's the correct format for s&box
+		if ( filename.Contains( "translucency" ) )
+			return "translucency";
 		if ( filename.Contains( "opacity" ) || filename.Contains( "alpha" ) )
 			return "opacity";
 		if ( filename.Contains( "emissive" ) )
 			return "emissive";
+		// Check occlusion last since "occlusion" could match "ambientocclusion"
+		if ( filename.Contains( "occlusion" ) )
+			return "ao";
 
 		return "unknown";
 	}
@@ -369,7 +375,8 @@ public class FabTexture
 			"ambientocclusion" => "_ao",
 			"displacement" => "_height",
 			"height" => "_height",
-			"opacity" => "_trans",
+			"translucency" => "_translucency",
+			"opacity" => "_opacity",
 			"emissive" => "_selfillum",
 			"mask" => "_mask",
 			"bump" => "_bump",
