@@ -1,0 +1,9 @@
+{
+  "profiles": {
+    "Editor": {
+      "commandName": "Executable",
+      "executablePath": "D:\\steamlibrary\\steamapps\\common\\sbox\\sbox-dev.exe",
+      "commandLineArgs": "-project \u0022c:\\users\\james\\documents\\s\u0026box projects\\fabbridge\\fabbridge.sbproj\u0022"
+    }
+  }
+}
